@@ -94,8 +94,8 @@ Draw.player = function () {
   var centerX = Player.x + CONFIG.PLAYER_SIZE / 2;
   var centerY = Player.y + CONFIG.PLAYER_SIZE / 2;
 
-  ctx.fillStyle = "#DE7356";
-  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#000000";
+  ctx.strokeStyle = "#DE7356";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
   ctx.beginPath();
   ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
