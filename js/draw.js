@@ -21,7 +21,7 @@ Draw.updateCamera = function () {
 Draw.everything = function () {
   var ctx = Draw.ctx;
 
-  ctx.fillStyle = "#DE7356";
+  ctx.fillStyle = "#090403";
   ctx.fillRect(0, 0, CONFIG.CANVAS_W, CONFIG.CANVAS_H);
 
   ctx.save();
