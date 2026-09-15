@@ -55,7 +55,7 @@ Draw.world = function () {
 
 Draw.block = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#DE7356";
   ctx.fillRect(x, y, size, size);
   ctx.strokeStyle = "#DE7356";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
@@ -67,7 +67,7 @@ Draw.block = function (x, y, size) {
 
 Draw.spike = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#eb4d21";
   ctx.beginPath();
   ctx.moveTo(x, y + size);
   ctx.lineTo(x + size / 2, y);
