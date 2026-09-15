@@ -21,7 +21,7 @@ Draw.updateCamera = function () {
 Draw.everything = function () {
   var ctx = Draw.ctx;
 
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#DE7356";
   ctx.fillRect(0, 0, CONFIG.CANVAS_W, CONFIG.CANVAS_H);
 
   ctx.save();
@@ -55,9 +55,9 @@ Draw.world = function () {
 
 Draw.block = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#000000";
   ctx.fillRect(x, y, size, size);
-  ctx.strokeStyle = "#000000";
+  ctx.strokeStyle = "#DE7356";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
   ctx.strokeRect(x + CONFIG.LINE_WIDTH / 2,
                  y + CONFIG.LINE_WIDTH / 2,
@@ -94,7 +94,7 @@ Draw.player = function () {
   var centerX = Player.x + CONFIG.PLAYER_SIZE / 2;
   var centerY = Player.y + CONFIG.PLAYER_SIZE / 2;
 
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#DE7356";
   ctx.strokeStyle = "#000000";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
   ctx.beginPath();
