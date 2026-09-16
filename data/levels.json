@@ -33,5 +33,15 @@
         "finish"
       ]
     }
+    {
+      "name": "Level 3 - Watch Your Step",
+      "pieces": [
+        "start",
+        "step",
+        "spikepit",
+        "flat",
+        "finish"
+      ]
+    }
   ]
 }
