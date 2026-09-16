@@ -55,9 +55,9 @@ Draw.world = function () {
 
 Draw.block = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#DE7356";
+  ctx.fillStyle = "#de5656";
   ctx.fillRect(x, y, size, size);
-  ctx.strokeStyle = "#DE7356";
+  ctx.strokeStyle = "#de5656";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
   ctx.strokeRect(x + CONFIG.LINE_WIDTH / 2,
                  y + CONFIG.LINE_WIDTH / 2,
@@ -67,7 +67,7 @@ Draw.block = function (x, y, size) {
 
 Draw.spike = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#DE7356";
+  ctx.fillStyle = "#de5656";
   ctx.beginPath();
   ctx.moveTo(x, y + size);
   ctx.lineTo(x + size / 2, y);
@@ -95,7 +95,7 @@ Draw.player = function () {
   var centerY = Player.y + CONFIG.PLAYER_SIZE / 2;
 
   ctx.fillStyle = "#000000";
-  ctx.strokeStyle = "#DE7356";
+  ctx.strokeStyle = "#de5656";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
   ctx.beginPath();
   ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
