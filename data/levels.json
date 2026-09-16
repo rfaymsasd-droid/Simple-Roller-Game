@@ -20,25 +20,11 @@
       "pieces": [
         "start",
         "spikes",
-        "spikes",
-        "spikes",
-        "spikes",
-        "spikes",
         "gap",
         "step",
         "spikepit",
         "platform",
         "gap",
-        "flat",
-        "finish"
-      ]
-    }
-    {
-      "name": "Level 3 - Watch Your Step",
-      "pieces": [
-        "start",
-        "step",
-        "spikepit",
         "flat",
         "finish"
       ]
