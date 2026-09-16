@@ -8,7 +8,7 @@ var CONFIG = {
   CANVAS_H: 400,
 
   MOVE_SPEED: 4,
-  GRAVITY: .5,
+  GRAVITY: .6,
   JUMP_POWER: 15,
   MAX_FALL: 16,
 
