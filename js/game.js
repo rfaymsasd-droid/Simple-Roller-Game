@@ -39,9 +39,9 @@ Game.update = function () {
   }
 };
 
-Endless.next(); = function () {
+; = function () {
     Game.update();
     Draw.updateCamera();
     Draw.everything();
-    window.requestAnimationFrame(Endless.next());
+    window.requestAnimationFrame();
 };
