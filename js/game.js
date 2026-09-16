@@ -34,14 +34,14 @@ Game.update = function () {
 
   if (Player.hasWon()) {
     Game.mode = "won";
-    Game.showMessage("You made it. Press R to play again.");
+    Game.showMessage("You made it. Press R to play the next level.");
     return;
   }
 };
 
-Game.loop = function () {
+Endless.next(); = function () {
     Game.update();
     Draw.updateCamera();
     Draw.everything();
-    window.requestAnimationFrame(Game.loop);
+    window.requestAnimationFrame(Endless.next());
 };
