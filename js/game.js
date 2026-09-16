@@ -39,9 +39,9 @@ Game.update = function () {
   }
 };
 
-; = function () {
+Game.loop = function () {
     Game.update();
     Draw.updateCamera();
     Draw.everything();
-    window.requestAnimationFrame();
+    window.requestAnimationFrame(Game.loop);
 };
