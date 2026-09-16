@@ -40,8 +40,8 @@ Game.update = function () {
 };
 
 Game.loop = function () {
-  Game.update();
-  Draw.updateCamera();
-  Draw.everything();
-  window.requestAnimationFrame(Game.loop);
+    Game.update();
+    Draw.updateCamera();
+    Draw.everything();
+    window.requestAnimationFrame(Game.loop);
 };

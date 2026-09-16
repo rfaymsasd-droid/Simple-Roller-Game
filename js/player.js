@@ -20,8 +20,8 @@ Player.update = function () {
   var size = CONFIG.PLAYER_SIZE;
 
   Player.vx = 0;
-  if (Input.left)  { Player.vx = -CONFIG.MOVE_SPEED; }
-  if (Input.right) { Player.vx =  CONFIG.MOVE_SPEED; }
+    if (Input.left) { Player.vx = -CONFIG.MOVE_SPEED; }
+    if (Input.right) { Player.vx = CONFIG.MOVE_SPEED; }
 
   if (Input.jump && Player.onGround) {
     Player.vy = -CONFIG.JUMP_POWER;
