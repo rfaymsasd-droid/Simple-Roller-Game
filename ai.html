@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="EMBER — a momentum platformer about a rolling coal. Five levels, no downloads.">
+<title>EMBER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070604; --paper:#f6efe6; --muted:#a3907e;
+    --ember:#ff7a2f; --ember-soft:#ffb066; --ember-deep:#c2542a;
+    --edge:#2a2119; --panel:rgba(14,11,8,.88);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    background:var(--ink); color:var(--paper);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    overflow:hidden; overscroll-behavior:none; touch-action:none;
+    -webkit-user-select:none; user-select:none;
+  }
+
+  #stage{position:fixed;inset:0;display:grid;place-items:center}
+  canvas{display:block;width:100%;height:100%;image-rendering:auto}
+
+  /* ---------- HUD ---------- */
+  .hud{
+    position:fixed;top:0;left:0;right:0;z-index:3;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:1rem;padding:1rem 1.25rem;pointer-events:none;
+    font-variant-numeric:tabular-nums;
+  }
+  .hud .left,.hud .right{display:flex;align-items:center;gap:1.25rem}
+  .stat{display:flex;flex-direction:column;gap:.15rem;line-height:1}
+  .stat b{font-size:1.05rem;font-weight:500}
+  .stat span{font-size:.62rem;letter-spacing:.09em;color:#6f675e;text-transform:uppercase}
+  .stat.accent b{color:var(--ember)}
+  .hud button{pointer-events:auto}
+
+  .ghost-btn{
+    padding:.45rem .85rem;border:1px solid var(--edge);border-radius:8px;
+    background:rgba(20,15,10,.7);color:var(--muted);
+    font:500 .78rem Inter,sans-serif;cursor:pointer;
+    transition:color .16s ease,border-color .16s ease;
+  }
+  .ghost-btn:hover,.ghost-btn:focus-visible{color:var(--ember);border-color:var(--ember);outline:none}
+
+  /* ---------- overlays ---------- */
+  .veil{
+    position:fixed;inset:0;z-index:5;display:grid;place-items:center;
+    padding:1.5rem;background:rgba(7,6,4,.9);backdrop-filter:blur(7px);
+    opacity:0;pointer-events:none;transition:opacity .22s ease;
+  }
+  .veil.on{opacity:1;pointer-events:auto}
+  .card{width:min(560px,100%);text-align:center}
+
+  .title{
+    margin:0;font-family:Newsreader,Georgia,serif;font-weight:500;
+    font-size:clamp(3rem,13vw,6rem);line-height:.9;letter-spacing:-.05em;
+    color:var(--ember);
+  }
+  .sub{
+    margin:1rem 0 0;color:var(--muted);font-family:Newsreader,Georgia,serif;
+    font-style:italic;font-size:1.05rem;line-height:1.6;
+  }
+  h2.head{
+    margin:0;font-family:Newsreader,Georgia,serif;font-weight:500;
+    font-size:clamp(1.9rem,6vw,2.8rem);letter-spacing:-.03em;line-height:1.05;
+  }
+
+  .btn{
+    display:inline-block;padding:.8rem 1.9rem;border:1px solid var(--ember);
+    border-radius:10px;background:rgba(255,122,47,.12);color:var(--paper);
+    font:500 .95rem Inter,sans-serif;cursor:pointer;
+    transition:background .16s ease,color .16s ease,transform .16s ease;
+  }
+  .btn:hover,.btn:focus-visible{background:rgba(255,122,47,.26);color:#fff;transform:translateY(-1px);outline:none}
+  .btn.quiet{border-color:var(--edge);background:none;color:var(--muted)}
+  .btn.quiet:hover,.btn.quiet:focus-visible{color:var(--ember);border-color:var(--ember);background:none}
+
+  .btn-row{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:2rem}
+
+  .keys{margin-top:2.5rem;display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;
+        color:#6f675e;font-size:.76rem}
+  .keys b{color:var(--muted);font-weight:500}
+
+  /* level select */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin-top:2rem}
+  .lvl{
+    padding:.9rem;border:1px solid var(--edge);border-radius:11px;
+    background:rgba(20,15,10,.6);text-align:left;cursor:pointer;
+    transition:border-color .16s ease,background .16s ease,transform .16s ease;
+  }
+  .lvl:hover,.lvl:focus-visible{border-color:var(--ember);background:rgba(255,122,47,.09);transform:translateY(-2px);outline:none}
+  .lvl .n{display:block;color:var(--paper);font-size:.92rem;font-weight:500}
+  .lvl .m{display:block;margin-top:.3rem;color:#6f675e;font-size:.7rem;font-variant-numeric:tabular-nums}
+  .lvl .m em{color:var(--ember);font-style:normal}
+
+  .stats-row{display:flex;gap:2rem;justify-content:center;margin-top:1.8rem;flex-wrap:wrap}
+  .big{display:flex;flex-direction:column;gap:.25rem}
+  .big b{font-size:1.9rem;font-weight:500;font-family:Newsreader,serif;color:var(--ember);line-height:1}
+  .big span{font-size:.64rem;letter-spacing:.1em;color:#6f675e;text-transform:uppercase}
+  .pb{margin-top:1rem;color:var(--ember-soft);font-size:.82rem;min-height:1.2em}
+
+  /* ---------- touch ---------- */
+  .touch{position:fixed;inset:auto 0 0 0;z-index:4;display:none;
+         justify-content:space-between;padding:1.25rem;pointer-events:none}
+  .touch .pad{display:flex;gap:.75rem;pointer-events:auto}
+  .touch button{
+    width:66px;height:66px;border:1px solid var(--edge);border-radius:16px;
+    background:rgba(20,15,10,.75);color:var(--muted);font-size:1.3rem;
+    cursor:pointer;touch-action:none;
+  }
+  .touch button:active{background:rgba(255,122,47,.25);color:var(--ember)}
+  body.is-touch .touch{display:flex}
+
+  .exit{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:3}
+  .exit a{color:#5c554d;font-size:.76rem;text-decoration:none}
+  .exit a:hover{color:var(--ember)}
+  body.is-touch .exit{display:none}
+
+  @media (max-width:560px){ .hud{padding:.7rem .8rem} .stat b{font-size:.9rem} }
+</style>
+</head>
+<body>
+
+<div id="stage"><canvas id="cv"></canvas></div>
+
+<div class="hud" id="hud" hidden>
+  <div class="left">
+    <div class="stat"><b id="hLevel">1</b><span>Level</span></div>
+    <div class="stat"><b id="hTime">0.00</b><span>Time</span></div>
+    <div class="stat accent"><b id="hEmber">0/0</b><span>Embers</span></div>
+  </div>
+  <div class="right">
+    <div class="stat"><b id="hBest">—</b><span>Best</span></div>
+    <button class="ghost-btn" id="bPause">Pause</button>
+  </div>
+</div>
+
+<div class="veil on" id="vTitle">
+  <div class="card">
+    <h1 class="title">EMBER</h1>
+    <p class="sub">A coal rolls downhill. Everything else is friction.</p>
+    <div class="btn-row">
+      <button class="btn" id="bPlay">Play</button>
+      <button class="btn quiet" id="bSelect">Levels</button>
+    </div>
+    <div class="keys">
+      <span><b>← →</b> roll</span><span><b>Space</b> jump</span>
+      <span><b>R</b> restart</span><span><b>Esc</b> pause</span>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="vSelect">
+  <div class="card">
+    <h2 class="head">Levels</h2>
+    <div class="grid" id="lvlGrid"></div>
+    <div class="btn-row"><button class="btn quiet" id="bBackTitle">Back</button></div>
+  </div>
+</div>
+
+<div class="veil" id="vPause">
+  <div class="card">
+    <h2 class="head">Paused</h2>
+    <div class="btn-row">
+      <button class="btn" id="bResume">Resume</button>
+      <button class="btn quiet" id="bRetry">Restart</button>
+      <button class="btn quiet" id="bQuit">Levels</button>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="vWin">
+  <div class="card">
+    <h2 class="head" id="wHead">Level clear</h2>
+    <div class="stats-row">
+      <div class="big"><b id="wTime">0.00</b><span>Time</span></div>
+      <div class="big"><b id="wEmber">0/0</b><span>Embers</span></div>
+      <div class="big"><b id="wDeaths">0</b><span>Deaths</span></div>
+    </div>
+    <p class="pb" id="wPB"></p>
+    <div class="btn-row">
+      <button class="btn" id="bNext">Next</button>
+      <button class="btn quiet" id="bAgain">Again</button>
+      <button class="btn quiet" id="bMenu">Levels</button>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="vDone">
+  <div class="card">
+    <h1 class="title">Burned out</h1>
+    <p class="sub">All five levels. Times are saved in this browser.</p>
+    <div class="stats-row">
+      <div class="big"><b id="dTotal">0.00</b><span>Total</span></div>
+      <div class="big"><b id="dEmber">0/0</b><span>Embers</span></div>
+    </div>
+    <div class="btn-row"><button class="btn" id="bDoneMenu">Levels</button></div>
+  </div>
+</div>
+
+<div class="touch">
+  <div class="pad">
+    <button id="tLeft" aria-label="Roll left">←</button>
+    <button id="tRight" aria-label="Roll right">→</button>
+  </div>
+  <div class="pad"><button id="tJump" aria-label="Jump">▲</button></div>
+</div>
+
+<div class="exit"><a href="index.html">Portfolio</a></div>
+
+<script>
+"use strict";
+/* ============================================================
+   EMBER — a momentum platformer
+   Single file on purpose: the original loaded levels with
+   fetch(), which silently fails when you open index.html off
+   the disk. Everything here is inline, so it runs from a file
+   URL and from GitHub Pages identically.
+   ============================================================ */
+
+const LEVELS = [{"name":"First Roll","hint":"Arrow keys roll. Space jumps.","rows":["................................................................","................................................................","................................................................","................................................................","................................................................","................................................................","................................................................","................................................................","................................................................","...........................................o....................",".......................o................#######.................",".....................######.....................................","................................................................","................................................................","..S......o.............^^.......................o...........F...","##############....##############....################....########","##############....##############....################....########","##############....##############....################....########"]},{"name":"Teeth","hint":"Thin platforms only catch you from above.","rows":["................................................................................","................................................................................","................................................................................","................................................................................","................................................................................","................................................................................","................................................................................","................................................................................","................................................................................","................................................................................","..........................................o.....................................",".........................o..............------...............o..................","......................------..............................------................","................................................................................","..S...^^...............^^.................^^....o..........^^.....o.........F...","##############....##############....##############....##############....########","##############....##############....##############....##############....########","##############....##############....##############....##############....########"]},{"name":"Bounce","hint":"Orange pads throw you higher than you can jump.","rows":["..................................................................................","..................................................................................","..................................................................................","..................................................................................","..................................................................................","..................................................................................","..............................................o...................................","........................o...................######...............o................","......................######..................................#######.............","..................................................................................","......o.................................o.........................................","..................................................................................","..................................................................................","..................................................................................","..S...bb...............^^...............bb...............^^b..............o...F...","##############....############....##############....##############....############","##############....############....##############....##############....############","##############....############....##############....##############....############"]},{"name":"Climb","hint":"Up is just sideways with patience.","rows":["..........................................................",".............F............................................","..........########......o.................................","....................########..............................",".................................o........................","..............................#######.....................",".........................................o................",".....................................########.............",".............................o............................",".........................########.........................",".................o........................................",".............########.....................................",".....o........................................-------.....","#########.................................................","..........................................................","..S.bb................^^.........^^.........^^...bb.......","##########################################################","##########################################################"]},{"name":"The Long Way","hint":"Everything at once.","rows":["..............................................................................................................","..............................................................................................................","..............................................................................................................","..............................................................................................................","..............................................................................................................","..............................................................................................................","..............................................................................................................",".................................................................................o............................",".............................................................o................#######.........................","..........................................o...............--------..................................o.........","......o..................o..............######..................................................--------......","......................------..................................................................................","..............................................................................................................","..............................................................................................................","..S...bb...............^^...............^^..bb............^^..................^^....bb....o.......^^.....F.o..","##############....##############....##############....################....##############....##################","##############....##############....##############....################....##############....##################","##############....##############....##############....################....##############....##################"]}];
+
+/* ---------- tuning: every number that decides how it feels ---------- */
+const CFG = {
+  tile: 28,
+  gravity: 2000,
+  maxFall: 1150,
+  runAccel: 3200,
+  airAccel: 2000,
+  groundFriction: 2800,
+  airFriction: 500,
+  maxRun: 300,
+  jumpVel: 620,
+  jumpCut: 0.45,       // vy multiplier when jump is released early
+  coyote: 0.10,        // grace after walking off a ledge
+  buffer: 0.12,        // grace for pressing jump before landing
+  apexSpeed: 130,      // |vy| under this counts as the apex
+  apexGravity: 0.70,   // lighter gravity at the apex = more hang time
+  bounceVel: 900,
+  w: 20, h: 20,        // collision box (a box; drawn as a circle)
+  radius: 11
+};
+
+const T = CFG.tile;
+const ROWS = LEVELS[0].rows.length;
+
+/* ---------- storage: never let a blocked localStorage kill the game ---------- */
+const Save = (() => {
+  const KEY = 'ember.save.v1';
+  let mem = {};
+  try {
+    mem = JSON.parse(localStorage.getItem(KEY) || '{}');
+  } catch (e) { mem = {}; }
+  const flush = () => { try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) {} };
+  return {
+    best:   (i) => (mem[i] && mem[i].time) || null,
+    embers: (i) => (mem[i] && mem[i].embers) || 0,
+    record(i, time, embers) {
+      const cur = mem[i] || {};
+      const pb = cur.time == null || time < cur.time;
+      mem[i] = { time: pb ? time : cur.time, embers: Math.max(cur.embers || 0, embers) };
+      flush();
+      return pb;
+    }
+  };
+})();
+
+/* ---------- audio: synthesised, so the repo carries no sound files ---------- */
+const Sfx = (() => {
+  let ac = null, master = null, muted = false;
+  function ready() {
+    if (ac) return true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    ac = new AC();
+    master = ac.createGain();
+    master.gain.value = 0.22;
+    master.connect(ac.destination);
+    return true;
+  }
+  function tone(type, f0, f1, dur, vol, delay) {
+    if (muted || !ready()) return;
+    if (ac.state === 'suspended') ac.resume();
+    const t = ac.currentTime + (delay || 0);
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f0, t);
+    o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  function noise(dur, vol) {
+    if (muted || !ready()) return;
+    if (ac.state === 'suspended') ac.resume();
+    const n = Math.floor(ac.sampleRate * dur);
+    const buf = ac.createBuffer(1, n, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = ac.createBufferSource();
+    const g = ac.createGain();
+    g.gain.value = vol;
+    src.buffer = buf;
+    src.connect(g); g.connect(master);
+    src.start();
+  }
+  return {
+    unlock: ready,
+    toggle() { muted = !muted; return muted; },
+    isMuted: () => muted,
+    jump()    { tone('triangle', 330, 560, 0.13, 0.30); },
+    land()    { noise(0.06, 0.16); },
+    bounce()  { tone('square', 260, 760, 0.18, 0.26); },
+    collect() { tone('sine', 880, 1320, 0.10, 0.22); },
+    die()     { tone('sawtooth', 320, 60, 0.36, 0.30); noise(0.18, 0.2); },
+    win()     { [523, 659, 784, 1047].forEach((f, i) => tone('triangle', f, f, 0.16, 0.24, i * 0.085)); }
+  };
+})();
+
+/* ---------- canvas ---------- */
+const cv  = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let cssW = 0, cssH = 0, scale = 1, viewW = 0;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cssW = cv.clientWidth; cssH = cv.clientHeight;
+  cv.width  = Math.floor(cssW * dpr);
+  cv.height = Math.floor(cssH * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // the whole 18-tile height always fits; the camera only scrolls sideways
+  scale = Math.min(cssH / (ROWS * T), 2.4);
+  viewW = cssW / scale;
+}
+window.addEventListener('resize', resize);
+
+/* ---------- input ---------- */
+const keys = { left: false, right: false, jump: false };
+let jumpPressedAt = -999;
+
+function setJump(down) {
+  if (down && !keys.jump) jumpPressedAt = now;
+  keys.jump = down;
+}
+
+const KEYMAP = {
+  ArrowLeft: 'left', KeyA: 'left',
+  ArrowRight: 'right', KeyD: 'right'
+};
+
+addEventListener('keydown', (e) => {
+  if (e.repeat) return;
+  Sfx.unlock();
+  if (KEYMAP[e.code]) { keys[KEYMAP[e.code]] = true; e.preventDefault(); return; }
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { setJump(true); e.preventDefault(); return; }
+  if (e.code === 'KeyR' && state === 'play') restart();
+  if (e.code === 'KeyM') Sfx.toggle();
+  if (e.code === 'Escape') { if (state === 'play') pause(); else if (state === 'pause') resume(); }
+});
+
+addEventListener('keyup', (e) => {
+  if (KEYMAP[e.code]) { keys[KEYMAP[e.code]] = false; return; }
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') setJump(false);
+});
+
+addEventListener('blur', () => { keys.left = keys.right = false; setJump(false); });
+
+function bindHold(id, on, off) {
+  const el = document.getElementById(id);
+  const down = (e) => { e.preventDefault(); Sfx.unlock(); on(); };
+  const up   = (e) => { e.preventDefault(); off(); };
+  el.addEventListener('pointerdown', down);
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', up);
+  el.addEventListener('pointerleave', up);
+}
+bindHold('tLeft',  () => keys.left = true,  () => keys.left = false);
+bindHold('tRight', () => keys.right = true, () => keys.right = false);
+bindHold('tJump',  () => setJump(true),     () => setJump(false));
+
+if (matchMedia('(hover: none) and (pointer: coarse)').matches) document.body.classList.add('is-touch');
+
+/* ---------- level ---------- */
+let L = null;          // { rows, w, h, name, hint }
+let idx = 0;           // current level index
+let p = null;          // player
+let embers = [];
+let particles = [];
+let cam = { x: 0, target: 0 };
+let shake = 0, hitstop = 0;
+let levelTime = 0, deaths = 0, got = 0;
+let state = 'title';   // title | select | play | pause | win | done
+let now = 0;
+
+const at = (c, r) => (r < 0 || r >= L.h || c < 0 || c >= L.w) ? '.' : L.rows[r][c];
+const isSolid  = (ch) => ch === '#';
+const isOneWay = (ch) => ch === '-';
+const isSpike  = (ch) => ch === '^';
+const isBounce = (ch) => ch === 'b';
+
+function loadLevel(i) {
+  idx = i;
+  const src = LEVELS[i];
+  const w = Math.max(...src.rows.map(r => r.length));
+  const rows = src.rows.map(r => r.padEnd(w, '.'));
+  L = { rows, w, h: rows.length, name: src.name, hint: src.hint };
+
+  embers = []; particles = [];
+  let start = { x: T, y: T };
+  for (let r = 0; r < L.h; r++) {
+    for (let c = 0; c < w; c++) {
+      const ch = rows[r][c];
+      if (ch === 'S') start = { x: c * T + (T - CFG.w) / 2, y: r * T + (T - CFG.h) };
+      else if (ch === 'o') embers.push({ x: c * T + T / 2, y: r * T + T / 2, got: false, seed: Math.random() * 6.28 });
+      else if (ch === 'F') L.finish = { x: c * T, y: r * T };
+    }
+  }
+  L.start = start;
+  levelTime = 0; deaths = 0; got = 0;
+  spawn();
+  cam.x = cam.target = clampCam(p.x - viewW / 2);
+  syncHud();
+}
+
+function spawn() {
+  p = {
+    x: L.start.x, y: L.start.y,
+    vx: 0, vy: 0,
+    w: CFG.w, h: CFG.h,
+    grounded: false, lastGround: -999, spin: 0,
+    sx: 1, sy: 1,            // squash / stretch
+    dead: false, deadAt: 0
+  };
+  keys.left = keys.right = false;
+}
+
+function restart() {
+  embers.forEach(e => e.got = false);
+  got = 0;
+  levelTime = 0;
+  particles.length = 0;
+  spawn();
+  syncHud();
+}
+
+/* ---------- particles ---------- */
+function puff(x, y, n, opts) {
+  const o = opts || {};
+  for (let i = 0; i < n; i++) {
+    const a = o.angle != null ? o.angle + (Math.random() - 0.5) * (o.spread || 1.2) : Math.random() * 6.283;
+    const s = (o.speed || 90) * (0.35 + Math.random() * 0.9);
+    particles.push({
+      x, y,
+      vx: Math.cos(a) * s + (o.vx || 0),
+      vy: Math.sin(a) * s + (o.vy || 0),
+      life: 0, max: (o.life || 0.5) * (0.6 + Math.random() * 0.8),
+      size: (o.size || 3) * (0.5 + Math.random()),
+      grav: o.grav == null ? 380 : o.grav,
+      hue: o.hue || 'ember'
+    });
+  }
+}
+
+function stepParticles(dt) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const q = particles[i];
+    q.life += dt;
+    if (q.life >= q.max) { particles.splice(i, 1); continue; }
+    q.vy += q.grav * dt;
+    q.vx *= (1 - 2.2 * dt);
+    q.x += q.vx * dt;
+    q.y += q.vy * dt;
+  }
+}
+
+/* ---------- physics ---------- */
+function collideX() {
+  const c0 = Math.floor(p.x / T), c1 = Math.floor((p.x + p.w - 1) / T);
+  const r0 = Math.floor(p.y / T), r1 = Math.floor((p.y + p.h - 1) / T);
+  for (let r = r0; r <= r1; r++) {
+    for (let c = c0; c <= c1; c++) {
+      if (!isSolid(at(c, r))) continue;
+      if (p.vx > 0) p.x = c * T - p.w;
+      else if (p.vx < 0) p.x = (c + 1) * T;
+      p.vx = 0;
+      return;
+    }
+  }
+}
+
+function collideY(prevBottom) {
+  const c0 = Math.floor(p.x / T), c1 = Math.floor((p.x + p.w - 1) / T);
+  const r0 = Math.floor(p.y / T), r1 = Math.floor((p.y + p.h - 1) / T);
+  for (let r = r0; r <= r1; r++) {
+    for (let c = c0; c <= c1; c++) {
+      const ch = at(c, r);
+      const solid = isSolid(ch);
+      // a one-way platform only exists when you are falling onto its top edge
+      const oneway = isOneWay(ch) && p.vy > 0 && prevBottom <= r * T + 2;
+      if (!solid && !oneway) continue;
+      if (p.vy > 0) {
+        p.y = r * T - p.h;
+        land(ch);
+      } else if (p.vy < 0 && solid) {
+        p.y = (r + 1) * T;
+        p.vy = 0;
+      }
+      return;
+    }
+  }
+}
+
+function land(ch) {
+  const impact = p.vy;
+  p.vy = 0;
+  if (!p.grounded && impact > 180) {
+    Sfx.land();
+    puff(p.x + p.w / 2, p.y + p.h, Math.min(10, 3 + impact / 120),
+         { angle: -Math.PI / 2, spread: 2.4, speed: 60, life: 0.35, size: 2.4, grav: 240 });
+    p.sx = 1 + Math.min(0.35, impact / 2600);
+    p.sy = 1 - Math.min(0.30, impact / 2900);
+    shake = Math.min(5, impact / 260);
+  }
+  p.grounded = true;
+  p.lastGround = now;
+}
+
+function tickPlayer(dt) {
+  // --- horizontal ---
+  const dir = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+  const accel = p.grounded ? CFG.runAccel : CFG.airAccel;
+  if (dir !== 0) {
+    p.vx += dir * accel * dt;
+    p.vx = Math.max(-CFG.maxRun, Math.min(CFG.maxRun, p.vx));
+  } else {
+    const fr = (p.grounded ? CFG.groundFriction : CFG.airFriction) * dt;
+    p.vx = Math.abs(p.vx) <= fr ? 0 : p.vx - Math.sign(p.vx) * fr;
+  }
+
+  // --- jump: coyote time + input buffer + variable height ---
+  const canCoyote = now - p.lastGround <= CFG.coyote;
+  const buffered  = now - jumpPressedAt <= CFG.buffer;
+  if (buffered && canCoyote && keys.jump) {
+    p.vy = -CFG.jumpVel;
+    p.grounded = false;
+    p.lastGround = -999;
+    jumpPressedAt = -999;
+    p.sx = 0.80; p.sy = 1.22;
+    Sfx.jump();
+    puff(p.x + p.w / 2, p.y + p.h, 6, { angle: Math.PI / 2, spread: 1.6, speed: 70, life: 0.3, size: 2.2, grav: 300 });
+  }
+  if (!keys.jump && p.vy < 0) p.vy *= Math.pow(CFG.jumpCut, dt * 60);
+
+  // --- gravity, lighter near the apex so the arc hangs ---
+  const g = CFG.gravity * (Math.abs(p.vy) < CFG.apexSpeed ? CFG.apexGravity : 1);
+  p.vy = Math.min(CFG.maxFall, p.vy + g * dt);
+
+  // --- move and resolve, one axis at a time ---
+  const prevBottom = p.y + p.h;
+  p.x += p.vx * dt; collideX();
+  p.grounded = false;
+  p.y += p.vy * dt; collideY(prevBottom);
+
+  // --- roll: spin follows real horizontal speed ---
+  p.spin += (p.vx / CFG.radius) * dt;
+
+  // --- ease squash back to round ---
+  p.sx += (1 - p.sx) * Math.min(1, dt * 12);
+  p.sy += (1 - p.sy) * Math.min(1, dt * 12);
+
+  // --- trail while moving fast ---
+  if (Math.abs(p.vx) > 210 && Math.random() < dt * 34) {
+    puff(p.x + p.w / 2, p.y + p.h - 3, 1, { speed: 22, life: 0.42, size: 2, grav: 40 });
+  }
+
+  if (p.y > (L.h + 4) * T) die();
+}
+
+function overlapsTile(test) {
+  const c0 = Math.floor((p.x + 3) / T), c1 = Math.floor((p.x + p.w - 4) / T);
+  const r0 = Math.floor((p.y + 3) / T), r1 = Math.floor((p.y + p.h - 4) / T);
+  for (let r = r0; r <= r1; r++)
+    for (let c = c0; c <= c1; c++)
+      if (test(at(c, r))) return { c, r };
+  return null;
+}
+
+function checkWorld() {
+  if (overlapsTile(isSpike)) { die(); return; }
+
+  const b = overlapsTile(isBounce);
+  if (b && p.vy >= -50) {
+    p.vy = -CFG.bounceVel;
+    p.grounded = false;
+    p.lastGround = -999;
+    p.sx = 0.72; p.sy = 1.34;
+    shake = 4;
+    Sfx.bounce();
+    puff(p.x + p.w / 2, p.y + p.h, 14,
+         { angle: -Math.PI / 2, spread: 1.9, speed: 190, life: 0.5, size: 3, grav: 300 });
+  }
+
+  const cx = p.x + p.w / 2, cy = p.y + p.h / 2;
+  for (const e of embers) {
+    if (e.got) continue;
+    if (Math.abs(e.x - cx) < 17 && Math.abs(e.y - cy) < 17) {
+      e.got = true; got++;
+      Sfx.collect();
+      puff(e.x, e.y, 12, { speed: 130, life: 0.5, size: 2.6, grav: 120 });
+      syncHud();
+    }
+  }
+
+  if (L.finish &&
+      cx > L.finish.x - 6 && cx < L.finish.x + T + 6 &&
+      cy > L.finish.y - 10 && cy < L.finish.y + T + 10) win();
+}
+
+function die() {
+  if (p.dead) return;
+  p.dead = true;
+  deaths++;
+  hitstop = 0.09;
+  shake = 11;
+  Sfx.die();
+  puff(p.x + p.w / 2, p.y + p.h / 2, 30, { speed: 230, life: 0.75, size: 3.4, grav: 420 });
+  setTimeout(() => { if (state === 'play') { spawn(); syncHud(); } }, 340);
+}
+
+/* ---------- camera ---------- */
+function clampCam(x) {
+  const max = Math.max(0, L.w * T - viewW);
+  return Math.max(0, Math.min(max, x));
+}
+
+function tickCam(dt) {
+  const lookahead = (p.vx / CFG.maxRun) * viewW * 0.16;
+  cam.target = clampCam(p.x + p.w / 2 - viewW / 2 + lookahead);
+  cam.x += (cam.target - cam.x) * Math.min(1, dt * 6.5);
+}
+
+/* ---------- draw ---------- */
+function drawBackdrop() {
+  const g = ctx.createLinearGradient(0, 0, 0, cssH);
+  g.addColorStop(0, '#0d0a07');
+  g.addColorStop(1, '#070604');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, cssW, cssH);
+
+  // two parallax bands of slabs, far ones move least
+  const bands = [
+    { depth: 0.14, y: 0.55, h: 0.45, col: 'rgba(255,122,47,0.045)', step: 190 },
+    { depth: 0.30, y: 0.68, h: 0.32, col: 'rgba(255,122,47,0.065)', step: 130 }
+  ];
+  for (const b of bands) {
+    const off = -cam.x * scale * b.depth;
+    const step = b.step;
+    ctx.fillStyle = b.col;
+    for (let x = (off % step) - step; x < cssW + step; x += step) {
+      const hh = cssH * b.h * (0.55 + 0.45 * Math.abs(Math.sin(x * 0.013)));
+      ctx.fillRect(x, cssH - hh, step * 0.58, hh);
+    }
+  }
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function drawWorld() {
+  const c0 = Math.max(0, Math.floor(cam.x / T) - 1);
+  const c1 = Math.min(L.w - 1, Math.ceil((cam.x + viewW) / T) + 1);
+
+  for (let r = 0; r < L.h; r++) {
+    for (let c = c0; c <= c1; c++) {
+      const ch = L.rows[r][c];
+      if (ch === '.' || ch === 'S' || ch === 'o') continue;
+      const x = c * T, y = r * T;
+
+      if (ch === '#') {
+        ctx.fillStyle = '#17120d';
+        ctx.fillRect(x, y, T, T);
+        // lip only on exposed top edges, so the ground reads as a surface
+        if (!isSolid(at(c, r - 1))) {
+          ctx.fillStyle = 'rgba(255,122,47,0.5)';
+          ctx.fillRect(x, y, T, 2);
+          ctx.fillStyle = 'rgba(255,122,47,0.08)';
+          ctx.fillRect(x, y + 2, T, 5);
+        }
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 0.5, y + 0.5, T - 1, T - 1);
+
+      } else if (ch === '-') {
+        ctx.fillStyle = 'rgba(255,122,47,0.62)';
+        ctx.fillRect(x, y, T, 3);
+        ctx.fillStyle = 'rgba(255,122,47,0.10)';
+        ctx.fillRect(x, y + 3, T, 3);
+
+      } else if (ch === '^') {
+        ctx.fillStyle = '#e0451c';
+        for (let k = 0; k < 2; k++) {
+          const bx = x + k * (T / 2);
+          ctx.beginPath();
+          ctx.moveTo(bx, y + T);
+          ctx.lineTo(bx + T / 4, y + T * 0.28);
+          ctx.lineTo(bx + T / 2, y + T);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.fillStyle = 'rgba(255,180,120,0.55)';
+        ctx.fillRect(x, y + T - 2, T, 2);
+
+      } else if (ch === 'b') {
+        const t = 1 + Math.sin(now * 5 + c) * 0.10;
+        ctx.fillStyle = 'rgba(255,122,47,0.20)';
+        ctx.fillRect(x, y + T * 0.45, T, T * 0.55);
+        ctx.fillStyle = '#ff8b4d';
+        roundRect(x + 2, y + T * 0.42 - (t - 1) * 8, T - 4, 7, 3);
+        ctx.fill();
+
+      } else if (ch === 'F') {
+        const pulse = 0.55 + Math.sin(now * 3) * 0.2;
+        ctx.save();
+        ctx.shadowColor = 'rgba(255,122,47,' + pulse + ')';
+        ctx.shadowBlur = 26;
+        ctx.fillStyle = '#ff7a2f';
+        ctx.fillRect(x + T * 0.42, y - T * 0.6, 3, T * 1.6);
+        ctx.beginPath();
+        ctx.moveTo(x + T * 0.42 + 3, y - T * 0.55);
+        ctx.lineTo(x + T * 1.05, y - T * 0.25);
+        ctx.lineTo(x + T * 0.42 + 3, y + T * 0.05);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+
+  // embers
+  for (const e of embers) {
+    if (e.got) continue;
+    const bob = Math.sin(now * 2.6 + e.seed) * 3;
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,160,90,0.9)';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = '#ffb066';
+    ctx.beginPath();
+    ctx.arc(e.x, e.y + bob, 5, 0, 6.283);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawParticles() {
+  for (const q of particles) {
+    const k = 1 - q.life / q.max;
+    ctx.globalAlpha = Math.max(0, k * 0.85);
+    ctx.fillStyle = q.hue === 'ash' ? '#6b5d50' : (k > 0.55 ? '#ffce9e' : '#ff7a2f');
+    ctx.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawPlayer() {
+  if (p.dead) return;
+  const cx = p.x + p.w / 2, cy = p.y + p.h / 2;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(p.sx, p.sy);
+  ctx.rotate(p.spin);
+
+  ctx.shadowColor = 'rgba(255,122,47,0.75)';
+  ctx.shadowBlur = 20;
+  const g = ctx.createRadialGradient(-3, -3, 1, 0, 0, CFG.radius);
+  g.addColorStop(0, '#ffd2a8');
+  g.addColorStop(0.55, '#ff8b4d');
+  g.addColorStop(1, '#c2542a');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(0, 0, CFG.radius, 0, 6.283);
+  ctx.fill();
+
+  // the off-centre dot from the original game, so you can see the roll
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#2a1206';
+  ctx.beginPath();
+  ctx.arc(CFG.radius * 0.42, 0, 2.6, 0, 6.283);
+  ctx.fill();
+  ctx.restore();
+}
+
+function render() {
+  drawBackdrop();
+  ctx.save();
+  const sx = shake > 0.05 ? (Math.random() - 0.5) * shake : 0;
+  const sy = shake > 0.05 ? (Math.random() - 0.5) * shake : 0;
+  ctx.translate(sx, sy);
+  ctx.scale(scale, scale);
+  ctx.translate(-cam.x, 0);
+  drawWorld();
+  drawParticles();
+  drawPlayer();
+  ctx.restore();
+}
+
+/* ---------- ui ---------- */
+const $ = (id) => document.getElementById(id);
+const fmt = (s) => s.toFixed(2);
+const veils = ['vTitle', 'vSelect', 'vPause', 'vWin', 'vDone'];
+
+function showVeil(id) {
+  veils.forEach(v => $(v).classList.toggle('on', v === id));
+  $('hud').hidden = (id !== null && id !== 'vPause');
+}
+
+function syncHud() {
+  $('hLevel').textContent = (idx + 1) + '/' + LEVELS.length;
+  $('hTime').textContent  = fmt(levelTime);
+  $('hEmber').textContent = got + '/' + embers.length;
+  const b = Save.best(idx);
+  $('hBest').textContent = b == null ? '—' : fmt(b);
+}
+
+function buildSelect() {
+  const g = $('lvlGrid');
+  g.innerHTML = '';
+  LEVELS.forEach((lv, i) => {
+    const b = document.createElement('button');
+    b.className = 'lvl';
+    const best = Save.best(i);
+    const eCount = (lv.rows.join('').match(/o/g) || []).length;
+    b.innerHTML = '<span class="n">' + (i + 1) + '. ' + lv.name + '</span>' +
+      '<span class="m">' + (best == null ? 'not cleared' : 'best <em>' + fmt(best) + 's</em>') +
+      ' · ' + Save.embers(i) + '/' + eCount + ' embers</span>';
+    b.addEventListener('click', () => { Sfx.unlock(); start(i); });
+    g.appendChild(b);
+  });
+}
+
+function start(i) { loadLevel(i); state = 'play'; showVeil(null); }
+function pause()  { if (state !== 'play') return; state = 'pause'; showVeil('vPause'); }
+function resume() { if (state !== 'pause') return; state = 'play'; showVeil(null); }
+
+function win() {
+  if (state !== 'play') return;
+  state = 'win';
+  Sfx.win();
+  puff(p.x + p.w / 2, p.y + p.h / 2, 26, { speed: 200, life: 0.9, size: 3, grav: 200 });
+  const pb = Save.record(idx, levelTime, got);
+  $('wHead').textContent   = LEVELS[idx].name + ' cleared';
+  $('wTime').textContent   = fmt(levelTime);
+  $('wEmber').textContent  = got + '/' + embers.length;
+  $('wDeaths').textContent = deaths;
+  $('wPB').textContent     = pb ? 'New best time.' : 'Best ' + fmt(Save.best(idx)) + 's';
+  $('bNext').style.display = idx + 1 < LEVELS.length ? '' : 'none';
+  showVeil('vWin');
+  buildSelect();
+}
+
+function finishRun() {
+  let total = 0, e = 0, eMax = 0, all = true;
+  LEVELS.forEach((lv, i) => {
+    const b = Save.best(i);
+    if (b == null) all = false; else total += b;
+    e += Save.embers(i);
+    eMax += (lv.rows.join('').match(/o/g) || []).length;
+  });
+  $('dTotal').textContent = all ? fmt(total) : '—';
+  $('dEmber').textContent = e + '/' + eMax;
+  state = 'done';
+  showVeil('vDone');
+}
+
+$('bPlay').addEventListener('click',   () => { Sfx.unlock(); start(0); });
+$('bSelect').addEventListener('click', () => { buildSelect(); state = 'select'; showVeil('vSelect'); });
+$('bBackTitle').addEventListener('click', () => { state = 'title'; showVeil('vTitle'); });
+$('bPause').addEventListener('click',  pause);
+$('bResume').addEventListener('click', resume);
+$('bRetry').addEventListener('click',  () => { restart(); resume(); });
+$('bQuit').addEventListener('click',   () => { buildSelect(); state = 'select'; showVeil('vSelect'); });
+$('bAgain').addEventListener('click',  () => start(idx));
+$('bMenu').addEventListener('click',   () => { buildSelect(); state = 'select'; showVeil('vSelect'); });
+$('bDoneMenu').addEventListener('click', () => { buildSelect(); state = 'select'; showVeil('vSelect'); });
+$('bNext').addEventListener('click',   () => {
+  if (idx + 1 < LEVELS.length) start(idx + 1); else finishRun();
+});
+
+/* ---------- loop ---------- */
+const STEP = 1 / 120;      // fixed physics step, so feel never depends on refresh rate
+let acc = 0, last = performance.now() / 1000;
+
+function frame(ms) {
+  requestAnimationFrame(frame);
+  const t = ms / 1000;
+  let dt = Math.min(0.1, t - last);
+  last = t;
+  now = t;
+
+  if (state === 'play') {
+    if (hitstop > 0) hitstop -= dt;
+    else {
+      levelTime += dt;
+      acc += dt;
+      let guard = 0;
+      while (acc >= STEP && guard++ < 12) {
+        if (!p.dead) { tickPlayer(STEP); checkWorld(); }
+        acc -= STEP;
+      }
+      tickCam(dt);
+      $('hTime').textContent = fmt(levelTime);
+    }
+  }
+
+  stepParticles(dt);
+  shake *= Math.pow(0.03, dt);
+  if (L) render();
+}
+
+/* ---------- go ---------- */
+resize();
+loadLevel(0);
+state = 'title';
+showVeil('vTitle');
+buildSelect();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
