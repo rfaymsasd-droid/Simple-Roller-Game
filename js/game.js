@@ -17,12 +17,34 @@ Game.showMessage = function (text) {
 
 Game.update = function () {
 
+  if (Input.nextLevel) {
+    Input.nextLevel = false;
+
+    if (Game.levelNumber < Level.levels.length - 1) {
+      Game.startLevel(Game.levelNumber + 1);
+    }
+
+    return;
+  }
+
+  if (Input.previousLevel) {
+    Input.previousLevel = false;
+
+    if (Game.levelNumber > 0) {
+      Game.startLevel(Game.levelNumber - 1);
+    }
+
+    return;
+  }
+
   if (Input.restart) {
     Game.startLevel(Game.levelNumber);
     return;
   }
 
-  if (Game.mode !== "playing") { return; }
+  if (Game.mode !== "playing") {
+    return;
+  }
 
   Player.update();
 
@@ -40,8 +62,8 @@ Game.update = function () {
 };
 
 Game.loop = function () {
-    Game.update();
-    Draw.updateCamera();
-    Draw.everything();
-    window.requestAnimationFrame(Game.loop);
+  Game.update();
+  Draw.updateCamera();
+  Draw.everything();
+  window.requestAnimationFrame(Game.loop);
 };
