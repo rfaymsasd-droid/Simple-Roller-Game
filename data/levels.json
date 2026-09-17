@@ -28,5 +28,24 @@
         "finish"
       ]
     }
+    {
+      "name": "Level 3 - So Many Platforms",
+      "pieces": [
+        "start",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "platform",
+        "finish"
+      ]
+    }
   ]
 }
