@@ -28,3 +28,10 @@ canvas {
 .controls {
   font-size: 13px;
 }
+
+body {
+  color: #2d89d0;
+  background-color: #010304;
+  font-family: 'Times New Roman', Times, serif;
+  text-align: center;
+}
