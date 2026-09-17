@@ -1,7 +1,7 @@
 var CONFIG = {
 
-  TILE: 50,
-  ROWS: 20,
+  TILE: 40,
+  ROWS: 10,
   PIECE_COLS: 8,
 
   CANVAS_W: 800,
