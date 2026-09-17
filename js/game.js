@@ -7,6 +7,7 @@ Game.startLevel = function (levelNumber) {
   Game.levelNumber = levelNumber;
   Level.build(levelNumber);
   Player.reset();
+  SpikeWall.reset();
   Game.mode = "playing";
   Game.showMessage("");
 };
@@ -47,6 +48,7 @@ Game.update = function () {
   }
 
   Player.update();
+  SpikeWall.update();
 
   if (Player.isDead()) {
     Game.mode = "dead";

@@ -28,6 +28,7 @@ Draw.everything = function () {
   ctx.translate(-Draw.cameraX, 0);
 
   Draw.world();
+  SpikeWall.draw();
   Draw.player();
 
   ctx.restore();

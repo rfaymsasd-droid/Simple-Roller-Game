@@ -20,8 +20,8 @@ Player.update = function () {
   var size = CONFIG.PLAYER_SIZE;
 
   Player.vx = 0;
-    if (Input.left) { Player.vx = -CONFIG.MOVE_SPEED; }
-    if (Input.right) { Player.vx = CONFIG.MOVE_SPEED; }
+  if (Input.left) { Player.vx = -CONFIG.MOVE_SPEED; }
+  if (Input.right) { Player.vx = CONFIG.MOVE_SPEED; }
 
   if (Input.jump && Player.onGround) {
     Player.vy = -CONFIG.JUMP_POWER;
@@ -62,6 +62,7 @@ Player.update = function () {
 Player.isDead = function () {
   var size = CONFIG.PLAYER_SIZE;
   if (Collide.hitsSpike(Player.x, Player.y, size, size)) { return true; }
+  if (SpikeWall.hitsPlayer()) { return true; }
   if (Player.y > CONFIG.CANVAS_H + 200) { return true; }
   return false;
 };
