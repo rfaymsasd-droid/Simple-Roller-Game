@@ -25,26 +25,30 @@
         "spikepit",
         "platform",
         "gap",
+        "mytower",
         "finish"
       ]
     },
-    {
-      "name": "Level 3 - So Many Platforms",
-      "pieces": [
-        "start",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "platform",
-        "finish"
+{  
+  "name": "Level 3 - The Long Scramble",  
+  "pieces": [  
+    "start",  
+    "step",  
+    "gap",  
+    "platform",  
+    "spikepit",  
+    "stairs",  
+    "gap",  
+    "mytower",  
+    "step",  
+    "platform",  
+    "spikepit",  
+    "gap",  
+    "stairs",  
+    "mytower",  
+    "gap",  
+    "step",  
+    "finish"  
       ]
     }
   ]
