@@ -106,7 +106,7 @@ Draw.player = function () {
   var dotX = centerX + Math.cos(Player.angle) * r * CONFIG.DOT_DISTANCE;
   var dotY = centerY + Math.sin(Player.angle) * r * CONFIG.DOT_DISTANCE;
 
-  ctx.fillStyle = "#2d89d0";
+  ctx.fillStyle = "#000000";
   ctx.beginPath();
   ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
   ctx.fill();

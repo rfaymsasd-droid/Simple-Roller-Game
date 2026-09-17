@@ -1,6 +1,6 @@
 body {
   background: #000000;
-  color: #de5656;
+  color: #2d89d0;
   font-family: monospace;
   text-align: center;
   margin: 24px;
@@ -13,7 +13,7 @@ h1 {
 }
 
 canvas {
-  border: 3px solid #de5656;
+  border: 3px solid #2d89d0;
   background: #000000;
   display: block;
   margin: 0 auto;
