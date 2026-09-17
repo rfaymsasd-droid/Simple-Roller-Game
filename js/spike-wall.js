@@ -6,13 +6,11 @@ var SpikeWall = {
 
 SpikeWall.reset = function () {
   SpikeWall.width = CONFIG.SPIKE_WALL_WIDTH;
-  // Begin behind the player so it becomes a threat after rolling starts.
   SpikeWall.x = Level.startX - SpikeWall.width - CONFIG.TILE * 4;
   SpikeWall.active = false;
 };
 
 SpikeWall.update = function () {
-  // Rolling in either direction starts the wall permanently.
   if (Player.vx !== 0) {
     SpikeWall.active = true;
   }
@@ -37,11 +35,10 @@ SpikeWall.draw = function () {
   var top = 0;
   var bottom = CONFIG.CANVAS_H;
 
-  ctx.fillStyle = "#d0312d";
+  ctx.fillStyle = "#2d89d0";
   ctx.fillRect(SpikeWall.x, top, SpikeWall.width, bottom);
 
-  // Point the spikes in the direction the wall is moving.
-  ctx.fillStyle = "#ffb000";
+  ctx.fillStyle = "#2d89d0";
   for (var y = 8; y < bottom; y += 32) {
     ctx.beginPath();
     ctx.moveTo(SpikeWall.x + SpikeWall.width, y);

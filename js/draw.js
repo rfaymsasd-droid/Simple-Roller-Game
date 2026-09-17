@@ -21,7 +21,7 @@ Draw.updateCamera = function () {
 Draw.everything = function () {
   var ctx = Draw.ctx;
 
-  ctx.fillStyle = "#130606";
+  ctx.fillStyle = "#060e13";
   ctx.fillRect(0, 0, CONFIG.CANVAS_W, CONFIG.CANVAS_H);
 
   ctx.save();
@@ -56,9 +56,9 @@ Draw.world = function () {
 
 Draw.block = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#d0312d";
+  ctx.fillStyle = "#2d89d0";
   ctx.fillRect(x, y, size, size);
-  ctx.strokeStyle = "#d0312d";
+  ctx.strokeStyle = "#2d89d0";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
   ctx.strokeRect(x + CONFIG.LINE_WIDTH / 2,
                  y + CONFIG.LINE_WIDTH / 2,
@@ -68,7 +68,7 @@ Draw.block = function (x, y, size) {
 
 Draw.spike = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#d0312d";
+  ctx.fillStyle = "#2d89d0";
   ctx.beginPath();
   ctx.moveTo(x, y + size);
   ctx.lineTo(x + size / 2, y);
@@ -79,7 +79,7 @@ Draw.spike = function (x, y, size) {
 
 Draw.finish = function (x, y, size) {
   var ctx = Draw.ctx;
-  ctx.fillStyle = "#d0312d";
+  ctx.fillStyle = "#2d89d0";
   ctx.fillRect(x + size / 2 - 2, y, 4, size);
   ctx.beginPath();
   ctx.moveTo(x + size / 2 + 2, y + 4);
@@ -96,7 +96,7 @@ Draw.player = function () {
   var centerY = Player.y + CONFIG.PLAYER_SIZE / 2;
 
   ctx.fillStyle = "#000000";
-  ctx.strokeStyle = "#d0312d";
+  ctx.strokeStyle = "#2d89d0";
   ctx.lineWidth = CONFIG.LINE_WIDTH;
   ctx.beginPath();
   ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
@@ -106,7 +106,7 @@ Draw.player = function () {
   var dotX = centerX + Math.cos(Player.angle) * r * CONFIG.DOT_DISTANCE;
   var dotY = centerY + Math.sin(Player.angle) * r * CONFIG.DOT_DISTANCE;
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#2d89d0";
   ctx.beginPath();
   ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
   ctx.fill();
