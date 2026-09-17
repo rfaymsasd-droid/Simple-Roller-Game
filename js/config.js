@@ -18,5 +18,5 @@ var CONFIG = {
   LINE_WIDTH: 3,
   DOT_DISTANCE: 0.55,
 
-  START_LEVEL: 2
+  START_LEVEL: 0
 };
