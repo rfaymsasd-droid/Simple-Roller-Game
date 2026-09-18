@@ -7,11 +7,11 @@ var CONFIG = {
   CANVAS_W: 800,
   CANVAS_H: 400,
 
-  // Tuned for steady, responsive movement without making the player fly
-  // across the level or jump so high that platforms are easy to skip.
-  MOVE_SPEED: 4,
+  // Tuned for responsive movement while keeping jumps controllable.
+  MOVE_SPEED: 4.5,
   GRAVITY: 0.65,
-  JUMP_POWER: 11,
+  // A jump of about three blocks (120 pixels) at this gravity.
+  JUMP_POWER: 13,
   MAX_FALL: 12,
 
   PLAYER_SIZE: 32,
@@ -20,9 +20,9 @@ var CONFIG = {
   LINE_WIDTH: 3,
   DOT_DISTANCE: 0.55,
 
-  // The moving spike wall is intentionally slower than a rolling player.
+  // Slightly slower than the player so movement stays manageable.
   SPIKE_WALL_WIDTH: 48,
-  SPIKE_WALL_SPEED: 3.2,
+  SPIKE_WALL_SPEED: 2.8,
 
   START_LEVEL: 0
 };
