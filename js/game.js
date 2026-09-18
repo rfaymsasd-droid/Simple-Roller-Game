@@ -8,7 +8,6 @@ Game.startLevel = function (levelNumber) {
   Level.build(levelNumber);
   Player.reset();
   SpikeWall.reset();
-  Invaders.reset();
   Game.mode = "playing";
   Game.showMessage("");
 };
@@ -18,33 +17,48 @@ Game.showMessage = function (text) {
 };
 
 Game.update = function () {
+  if (Input.nextLevel) {
+    Input.nextLevel = false;
+
+    if (Game.levelNumber < Level.levels.length - 1) {
+      Game.startLevel(Game.levelNumber + 1);
+    }
+
+    return;
+  }
+
+  if (Input.previousLevel) {
+    Input.previousLevel = false;
+
+    if (Game.levelNumber > 0) {
+      Game.startLevel(Game.levelNumber - 1);
+    }
+
+    return;
+  }
+
+  if (Input.restart) {
+    Game.startLevel(Game.levelNumber);
+    return;
+  }
+
   if (Game.mode !== "playing") {
     return;
   }
 
   Player.update();
   SpikeWall.update();
-  Invaders.update();
 
-  if (Player.y > CONFIG.CANVAS_H + 200) {
-    if (Game.levelNumber === 0) {
-      window.location.href = "https://www.youtube.com/watch?v=ZP-oK9MwucQ&list=LL&index=2";
-      return;
-    }
-    Game.startLevel(Math.max(0, Game.levelNumber - 1));
-    return;
-  }
-
-  // Invader bullets are harmless; only the level hazards can restart the player.
   if (Player.isDead()) {
-    Game.startLevel(Game.levelNumber);
+    Game.mode = "dead";
+    Game.showMessage("You hit something. Press R to try again.");
     return;
   }
 
   if (Player.hasWon()) {
-    var nextLevel = Game.levelNumber + 1;
-    if (nextLevel >= Level.levels.length) { nextLevel = 0; }
-    Game.startLevel(nextLevel);
+    Game.mode = "won";
+    Game.showMessage("You made it. Press R to play the next level.");
+    return;
   }
 };
 

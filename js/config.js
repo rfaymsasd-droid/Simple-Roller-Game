@@ -11,7 +11,6 @@ var CONFIG = {
   GRAVITY: .4,
   JUMP_POWER: 15,
   MAX_FALL: 12,
-  MAX_JUMPS: 2,
 
   PLAYER_SIZE: 32,
   PLAYER_RADIUS: 16,
@@ -19,16 +18,9 @@ var CONFIG = {
   LINE_WIDTH: 3,
   DOT_DISTANCE: 0.55,
 
-  // The wall stays threatening without catching the player too quickly.
+  // The moving spike wall is intentionally slower than a rolling player.
   SPIKE_WALL_WIDTH: 48,
   SPIKE_WALL_SPEED: 2.4,
-
-  INVADER_ROWS: 2,
-  INVADERS_PER_ROW: 4,
-  INVADER_SHOT_INTERVAL: 95,
-  INVADER_SHOT_SPEED: 3.5,
-  INVADER_SPEED: 0.45,
-  INVADER_SIZE: 24,
 
   START_LEVEL: 0
 };
