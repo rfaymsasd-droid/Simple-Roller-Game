@@ -30,8 +30,12 @@ Game.update = function () {
   SpikeWall.update();
 
   if (Player.y > CONFIG.CANVAS_H + 200) {
-    var previousLevel = Math.max(0, Game.levelNumber - 1);
-    Game.startLevel(previousLevel);
+    if (Game.levelNumber === 0) {
+      window.location.href = "https://www.youtube.com/watch?v=ZP-oK9MwucQ&list=LL&index=2";
+      return;
+    }
+
+    Game.startLevel(Math.max(0, Game.levelNumber - 1));
     return;
   }
 
