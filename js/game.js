@@ -35,7 +35,8 @@ Game.update = function () {
     return;
   }
 
-  if (Player.isDead() || Invaders.hitsPlayer()) {
+  // Invader bullets are harmless; only the level hazards can restart the player.
+  if (Player.isDead()) {
     Game.startLevel(Game.levelNumber);
     return;
   }
