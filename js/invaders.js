@@ -21,7 +21,8 @@ Invaders.reset = function () {
         offsetX: startOffset + col * spacing,
         x: 0,
         y: 18 + row * (CONFIG.INVADER_SIZE + 8),
-        alive: true
+        alive: true,
+        shotTimer: (row * CONFIG.INVADERS_PER_ROW + col) * 12
       });
     }
   }
@@ -41,7 +42,6 @@ Invaders.followPlayer = function () {
   for (var i = 0; i < Invaders.enemies.length; i++) {
     var enemy = Invaders.enemies[i];
     enemy.x = left + formationWidth / 2 + enemy.offsetX - CONFIG.INVADER_SIZE / 2;
-    // Keep the formation at the top of the canvas above the player.
     enemy.y = 18 + Math.floor(i / CONFIG.INVADERS_PER_ROW) * (CONFIG.INVADER_SIZE + 8);
   }
 };
@@ -49,14 +49,19 @@ Invaders.followPlayer = function () {
 Invaders.update = function () {
   Invaders.followPlayer();
 
-  // Invaders remain quiet until the player actually starts rolling.
-  // Existing bullets continue moving, so the player can still dodge them.
+  // Every invader has its own firing timer. They only start firing once the
+  // player is rolling, and staggered timers prevent all shots spawning at once.
   if (Player.vx !== 0) {
     Invaders.shooting = true;
-    Invaders.shotTimer++;
-    if (Invaders.shotTimer >= CONFIG.INVADER_SHOT_INTERVAL) {
-      Invaders.shotTimer = 0;
-      Invaders.shootAtPlayer();
+    for (var i = 0; i < Invaders.enemies.length; i++) {
+      var enemy = Invaders.enemies[i];
+      if (!enemy.alive) { continue; }
+
+      enemy.shotTimer++;
+      if (enemy.shotTimer >= CONFIG.INVADER_SHOT_INTERVAL) {
+        enemy.shotTimer = 0;
+        Invaders.shootAtPlayer(enemy);
+      }
     }
   }
 
@@ -80,22 +85,8 @@ Invaders.update = function () {
   }
 };
 
-Invaders.shootAtPlayer = function () {
-  var shooter = null;
-  var bestDistance = Infinity;
-
-  for (var i = 0; i < Invaders.enemies.length; i++) {
-    var enemy = Invaders.enemies[i];
-    if (!enemy.alive) { continue; }
-
-    var distance = Math.abs(enemy.x - Player.x);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      shooter = enemy;
-    }
-  }
-
-  if (!shooter) { return; }
+Invaders.shootAtPlayer = function (shooter) {
+  if (!shooter || !shooter.alive) { return; }
 
   var startX = shooter.x + CONFIG.INVADER_SIZE / 2;
   var startY = shooter.y + CONFIG.INVADER_SIZE;
