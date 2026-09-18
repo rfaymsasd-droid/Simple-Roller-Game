@@ -29,26 +29,44 @@
         "finish"
       ]
     },
-{  
-  "name": "Level 3 - The Long Scramble",  
-  "pieces": [  
-    "start",  
-    "step",  
-    "gap",  
-    "platform",  
-    "spikepit",  
-    "stairs",  
-    "gap",  
-    "mytower",  
-    "step",  
-    "platform",  
-    "spikepit",  
-    "gap",  
-    "stairs",  
-    "mytower",  
-    "gap",  
-    "step",  
-    "finish"  
+    {
+      "name": "Level 3 - The Long Scramble",
+      "pieces": [
+        "start",
+        "step",
+        "gap",
+        "platform",
+        "spikepit",
+        "stairs",
+        "gap",
+        "mytower",
+        "step",
+        "platform",
+        "spikepit",
+        "gap",
+        "stairs",
+        "mytower",
+        "gap",
+        "step",
+        "finish"
+      ]
+    },
+    {
+      "name": "Level 4 - Tight Void",
+      "pieces": [
+        "start",
+        "flat",
+        "gap",
+        "tightbeam",
+        "gap",
+        "floatspike",
+        "gap",
+        "voidledge",
+        "gap",
+        "sawbridge",
+        "gap",
+        "tightbeam",
+        "finish"
       ]
     }
   ]
