@@ -1,60 +1,63 @@
 var Invaders = {
   enemies: [],
   bullets: [],
-  direction: 1,
-  shotTimer: 0
+  shotTimer: 0,
+  shooting: false
 };
 
 Invaders.reset = function () {
   Invaders.enemies = [];
   Invaders.bullets = [];
-  Invaders.direction = 1;
   Invaders.shotTimer = 0;
+  Invaders.shooting = false;
 
-  // Keep the invaders in the upper part of the world so the player can see
-  // and dodge their shots while moving along the level.
-  var spacing = CONFIG.TILE * 3;
-  var startX = CONFIG.TILE * 5;
+  var spacing = CONFIG.TILE * 2;
+  var formationWidth = (CONFIG.INVADERS_PER_ROW - 1) * spacing + CONFIG.INVADER_SIZE;
+  var startOffset = -formationWidth / 2;
+
   for (var row = 0; row < CONFIG.INVADER_ROWS; row++) {
     for (var col = 0; col < CONFIG.INVADERS_PER_ROW; col++) {
       Invaders.enemies.push({
-        x: startX + col * spacing,
-        y: CONFIG.TILE + row * CONFIG.TILE,
+        offsetX: startOffset + col * spacing,
+        x: 0,
+        y: 18 + row * (CONFIG.INVADER_SIZE + 8),
         alive: true
       });
     }
   }
+
+  Invaders.followPlayer();
 };
 
-Invaders.update = function () {
-  var left = Infinity;
-  var right = -Infinity;
-  var aliveCount = 0;
+Invaders.followPlayer = function () {
+  var formationWidth = (CONFIG.INVADERS_PER_ROW - 1) * CONFIG.TILE * 2 + CONFIG.INVADER_SIZE;
+  var centerX = Player.x + CONFIG.PLAYER_SIZE / 2;
+  var left = centerX - formationWidth / 2;
+  var maxLeft = Math.max(0, Level.pixelWidth() - formationWidth);
+
+  if (left < 0) { left = 0; }
+  if (left > maxLeft) { left = maxLeft; }
 
   for (var i = 0; i < Invaders.enemies.length; i++) {
     var enemy = Invaders.enemies[i];
-    if (!enemy.alive) { continue; }
-    enemy.x += CONFIG.INVADER_SPEED * Invaders.direction;
-    left = Math.min(left, enemy.x);
-    right = Math.max(right, enemy.x + CONFIG.INVADER_SIZE);
-    aliveCount++;
+    enemy.x = left + formationWidth / 2 + enemy.offsetX - CONFIG.INVADER_SIZE / 2;
+    // Keep the formation at the top of the canvas above the player.
+    enemy.y = 18 + Math.floor(i / CONFIG.INVADERS_PER_ROW) * (CONFIG.INVADER_SIZE + 8);
   }
+};
 
-  if (aliveCount > 0) {
-    if (left < 0 || right > Level.pixelWidth()) {
-      Invaders.direction *= -1;
-      for (var j = 0; j < Invaders.enemies.length; j++) {
-        if (Invaders.enemies[j].alive) {
-          Invaders.enemies[j].x += CONFIG.INVADER_SPEED * Invaders.direction * 2;
-        }
-      }
+Invaders.update = function () {
+  Invaders.followPlayer();
+
+  // Invaders remain quiet until the player actually starts rolling.
+  // Existing bullets continue moving, so the player can still dodge them.
+  if (Player.vx !== 0) {
+    Invaders.shooting = true;
+    Invaders.shotTimer++;
+    if (Invaders.shotTimer >= CONFIG.INVADER_SHOT_INTERVAL) {
+      Invaders.shotTimer = 0;
+      Invaders.shootAtPlayer();
     }
-  }
-
-  Invaders.shotTimer++;
-  if (Invaders.shotTimer >= CONFIG.INVADER_SHOT_INTERVAL) {
-    Invaders.shotTimer = 0;
-    Invaders.shootAtPlayer();
   }
 
   for (var b = Invaders.bullets.length - 1; b >= 0; b--) {
@@ -73,7 +76,6 @@ Invaders.update = function () {
     if (Level.isSolid(col, row)) {
       Level.destroyBlock(col, row);
       Invaders.bullets.splice(b, 1);
-      continue;
     }
   }
 };
@@ -81,15 +83,18 @@ Invaders.update = function () {
 Invaders.shootAtPlayer = function () {
   var shooter = null;
   var bestDistance = Infinity;
+
   for (var i = 0; i < Invaders.enemies.length; i++) {
     var enemy = Invaders.enemies[i];
     if (!enemy.alive) { continue; }
+
     var distance = Math.abs(enemy.x - Player.x);
     if (distance < bestDistance) {
       bestDistance = distance;
       shooter = enemy;
     }
   }
+
   if (!shooter) { return; }
 
   var startX = shooter.x + CONFIG.INVADER_SIZE / 2;
@@ -126,6 +131,7 @@ Invaders.hitsPlayer = function () {
 
 Invaders.draw = function () {
   var ctx = Draw.ctx;
+
   for (var i = 0; i < Invaders.enemies.length; i++) {
     var enemy = Invaders.enemies[i];
     if (!enemy.alive) { continue; }
