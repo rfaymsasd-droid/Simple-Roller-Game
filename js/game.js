@@ -18,11 +18,6 @@ Game.showMessage = function (text) {
 };
 
 Game.update = function () {
-  if (Input.restart) {
-    Game.startLevel(Game.levelNumber);
-    return;
-  }
-
   if (Game.mode !== "playing") {
     return;
   }
@@ -41,8 +36,7 @@ Game.update = function () {
   }
 
   if (Player.isDead() || Invaders.hitsPlayer()) {
-    Game.mode = "dead";
-    Game.showMessage("You were hit. Press R to try again.");
+    Game.startLevel(Game.levelNumber);
     return;
   }
 
