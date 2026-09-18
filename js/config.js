@@ -21,7 +21,7 @@ var CONFIG = {
 
   // The moving spike wall is intentionally slower than a rolling player.
   SPIKE_WALL_WIDTH: 48,
-  SPIKE_WALL_SPEED: 3.2,
+  SPIKE_WALL_SPEED: 2.8,
 
   START_LEVEL: 0
 };
