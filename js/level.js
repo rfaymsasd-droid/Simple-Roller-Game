@@ -2,7 +2,6 @@ var Level = {
   pieces: null,
   levels: null,
   grid: [],
-  destroyed: {},
   cols: 0,
   name: "",
   startX: 0,
@@ -10,21 +9,31 @@ var Level = {
 };
 
 Level.loadData = function (whenDone) {
-  fetch("data/pieces.json")
-    .then(function (r) { return r.json(); })
+  function loadJson(path) {
+    return fetch(path, { cache: "no-store" }).then(function (response) {
+      if (!response.ok) {
+        throw new Error(path + " returned HTTP " + response.status);
+      }
+      return response.json();
+    });
+  }
+
+  loadJson("./data/pieces.json")
     .then(function (piecesFile) {
       Level.pieces = piecesFile;
-      return fetch("data/levels.json");
+      return loadJson("./data/levels.json");
     })
-    .then(function (r) { return r.json(); })
     .then(function (levelsFile) {
+      if (!levelsFile || !Array.isArray(levelsFile.levels)) {
+        throw new Error("data/levels.json does not contain a levels array");
+      }
       Level.levels = levelsFile.levels;
       whenDone();
     })
     .catch(function (error) {
-      document.getElementById("message").textContent =
-        "Could not load the level files. Check data/pieces.json and data/levels.json.";
-      console.error(error);
+      var message = document.getElementById("message");
+      message.textContent = "Could not load the level files. " + error.message;
+      console.error("Level loading failed:", error);
     });
 };
 
@@ -32,7 +41,6 @@ Level.build = function (levelNumber) {
   var level = Level.levels[levelNumber];
   Level.name = level.name;
   Level.grid = [];
-  Level.destroyed = {};
   Level.cols = level.pieces.length * CONFIG.PIECE_COLS;
 
   for (var row = 0; row < CONFIG.ROWS; row++) {
@@ -76,15 +84,7 @@ Level.charAt = function (col, row) {
   return Level.grid[row].charAt(col);
 };
 
-Level.destroyBlock = function (col, row) {
-  if (Level.charAt(col, row) === "#") {
-    Level.destroyed[col + ":" + row] = true;
-  }
-};
-
-Level.isSolid = function (col, row) {
-  return Level.charAt(col, row) === "#" && !Level.destroyed[col + ":" + row];
-};
+Level.isSolid  = function (col, row) { return Level.charAt(col, row) === "#"; };
 Level.isSpike  = function (col, row) { return Level.charAt(col, row) === "^"; };
 Level.isFinish = function (col, row) { return Level.charAt(col, row) === "F"; };
 
