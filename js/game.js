@@ -17,26 +17,6 @@ Game.showMessage = function (text) {
 };
 
 Game.update = function () {
-  if (Input.nextLevel) {
-    Input.nextLevel = false;
-
-    if (Game.levelNumber < Level.levels.length - 1) {
-      Game.startLevel(Game.levelNumber + 1);
-    }
-
-    return;
-  }
-
-  if (Input.previousLevel) {
-    Input.previousLevel = false;
-
-    if (Game.levelNumber > 0) {
-      Game.startLevel(Game.levelNumber - 1);
-    }
-
-    return;
-  }
-
   if (Input.restart) {
     Game.startLevel(Game.levelNumber);
     return;
@@ -56,8 +36,14 @@ Game.update = function () {
   }
 
   if (Player.hasWon()) {
-    Game.mode = "won";
-    Game.showMessage("You made it. Press R to play the next level.");
+    var nextLevel = Game.levelNumber + 1;
+
+    if (nextLevel < Level.levels.length) {
+      Game.startLevel(nextLevel);
+    } else {
+      Game.mode = "won";
+      Game.showMessage("You completed every level!");
+    }
     return;
   }
 };
