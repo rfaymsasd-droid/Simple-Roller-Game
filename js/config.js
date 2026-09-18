@@ -7,9 +7,11 @@ var CONFIG = {
   CANVAS_W: 800,
   CANVAS_H: 400,
 
-  MOVE_SPEED: 5,
-  GRAVITY: .4,
-  JUMP_POWER: 15,
+  // Tuned for steady, responsive movement without making the player fly
+  // across the level or jump so high that platforms are easy to skip.
+  MOVE_SPEED: 4,
+  GRAVITY: 0.65,
+  JUMP_POWER: 11,
   MAX_FALL: 12,
 
   PLAYER_SIZE: 32,
