@@ -17,27 +17,6 @@ Game.showMessage = function (text) {
 };
 
 Game.update = function () {
-
-  if (Input.nextLevel) {
-    Input.nextLevel = false;
-
-    if (Game.levelNumber < Level.levels.length - 1) {
-      Game.startLevel(Game.levelNumber + 1);
-    }
-
-    return;
-  }
-
-  if (Input.previousLevel) {
-    Input.previousLevel = false;
-
-    if (Game.levelNumber > 0) {
-      Game.startLevel(Game.levelNumber - 1);
-    }
-
-    return;
-  }
-
   if (Input.restart) {
     Game.startLevel(Game.levelNumber);
     return;
@@ -50,6 +29,12 @@ Game.update = function () {
   Player.update();
   SpikeWall.update();
 
+  if (Player.y > CONFIG.CANVAS_H + 200) {
+    var previousLevel = Math.max(0, Game.levelNumber - 1);
+    Game.startLevel(previousLevel);
+    return;
+  }
+
   if (Player.isDead()) {
     Game.mode = "dead";
     Game.showMessage("You hit something. Press R to try again.");
@@ -57,8 +42,11 @@ Game.update = function () {
   }
 
   if (Player.hasWon()) {
-    Game.mode = "won";
-    Game.showMessage("You made it. Press R to play the next level.");
+    var nextLevel = Game.levelNumber + 1;
+    if (nextLevel >= Level.levels.length) {
+      nextLevel = 0;
+    }
+    Game.startLevel(nextLevel);
     return;
   }
 };
