@@ -19,9 +19,16 @@ var CONFIG = {
   LINE_WIDTH: 3,
   DOT_DISTANCE: 0.55,
 
-  // The moving spike wall is intentionally slower than a rolling player.
+  // The wall stays threatening without catching the player too quickly.
   SPIKE_WALL_WIDTH: 48,
-  SPIKE_WALL_SPEED: 2.8,
+  SPIKE_WALL_SPEED: 2.4,
+
+  INVADER_ROWS: 2,
+  INVADERS_PER_ROW: 4,
+  INVADER_SHOT_INTERVAL: 95,
+  INVADER_SHOT_SPEED: 3.5,
+  INVADER_SPEED: 0.45,
+  INVADER_SIZE: 24,
 
   START_LEVEL: 0
 };

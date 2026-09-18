@@ -8,6 +8,7 @@ Game.startLevel = function (levelNumber) {
   Level.build(levelNumber);
   Player.reset();
   SpikeWall.reset();
+  Invaders.reset();
   Game.mode = "playing";
   Game.showMessage("");
 };
@@ -28,30 +29,27 @@ Game.update = function () {
 
   Player.update();
   SpikeWall.update();
+  Invaders.update();
 
   if (Player.y > CONFIG.CANVAS_H + 200) {
     if (Game.levelNumber === 0) {
       window.location.href = "https://www.youtube.com/watch?v=ZP-oK9MwucQ&list=LL&index=2";
       return;
     }
-
     Game.startLevel(Math.max(0, Game.levelNumber - 1));
     return;
   }
 
-  if (Player.isDead()) {
+  if (Player.isDead() || Invaders.hitsPlayer()) {
     Game.mode = "dead";
-    Game.showMessage("You hit something. Press R to try again.");
+    Game.showMessage("You were hit. Press R to try again.");
     return;
   }
 
   if (Player.hasWon()) {
     var nextLevel = Game.levelNumber + 1;
-    if (nextLevel >= Level.levels.length) {
-      nextLevel = 0;
-    }
+    if (nextLevel >= Level.levels.length) { nextLevel = 0; }
     Game.startLevel(nextLevel);
-    return;
   }
 };
 

@@ -2,6 +2,7 @@ var Level = {
   pieces: null,
   levels: null,
   grid: [],
+  destroyed: {},
   cols: 0,
   name: "",
   startX: 0,
@@ -31,6 +32,7 @@ Level.build = function (levelNumber) {
   var level = Level.levels[levelNumber];
   Level.name = level.name;
   Level.grid = [];
+  Level.destroyed = {};
   Level.cols = level.pieces.length * CONFIG.PIECE_COLS;
 
   for (var row = 0; row < CONFIG.ROWS; row++) {
@@ -74,7 +76,15 @@ Level.charAt = function (col, row) {
   return Level.grid[row].charAt(col);
 };
 
-Level.isSolid  = function (col, row) { return Level.charAt(col, row) === "#"; };
+Level.destroyBlock = function (col, row) {
+  if (Level.charAt(col, row) === "#") {
+    Level.destroyed[col + ":" + row] = true;
+  }
+};
+
+Level.isSolid = function (col, row) {
+  return Level.charAt(col, row) === "#" && !Level.destroyed[col + ":" + row];
+};
 Level.isSpike  = function (col, row) { return Level.charAt(col, row) === "^"; };
 Level.isFinish = function (col, row) { return Level.charAt(col, row) === "F"; };
 

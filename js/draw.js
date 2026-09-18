@@ -28,6 +28,7 @@ Draw.everything = function () {
   ctx.translate(-Draw.cameraX, 0);
 
   Draw.world();
+  Invaders.draw();
   SpikeWall.draw();
   Draw.player();
 
@@ -47,7 +48,7 @@ Draw.world = function () {
       var x = col * size;
       var y = row * size;
 
-      if (here === "#") { Draw.block(x, y, size); }
+      if (here === "#" && Level.isSolid(col, row)) { Draw.block(x, y, size); }
       if (here === "^") { Draw.spike(x, y, size); }
       if (here === "F") { Draw.finish(x, y, size); }
     }
